@@ -11,3 +11,4 @@ pyarrow
 lightgbm
 scikit-learn
 mlflow
+shap
