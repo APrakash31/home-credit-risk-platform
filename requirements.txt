@@ -5,3 +5,5 @@ python-dotenv
 kaggle
 azure-storage-blob
 jupyterlab
+matplotlib
+seaborn
