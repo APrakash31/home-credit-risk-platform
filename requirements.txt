@@ -8,3 +8,6 @@ jupyterlab
 matplotlib
 seaborn
 pyarrow
+lightgbm
+scikit-learn
+mlflow
