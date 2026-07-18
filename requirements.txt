@@ -1,0 +1,7 @@
+pandas
+polars
+duckdb
+python-dotenv
+kaggle
+azure-storage-blob
+jupyterlab
