@@ -15,8 +15,10 @@ FEATURES = ROOT / "data" / "processed" / "features.parquet"
 
 @st.cache_data
 def load_data():
-    df = pd.read_parquet(FEATURES)
-    return df
+    full = ROOT / "data" / "processed" / "features.parquet"
+    demo = ROOT / "app" / "demo_data" / "features_sample.parquet"
+    path = full if full.exists() else demo
+    return pd.read_parquet(path)
 
 
 @st.cache_resource
