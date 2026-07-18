@@ -1,0 +1,41 @@
+name: Credit risk pipeline
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pandas numpy pyarrow scikit-learn lightgbm shap joblib python-dotenv azure-storage-blob
+
+      - name: Download features from Azure
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: ${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}
+        run: python src/pipeline/fetch_from_azure.py
+
+      - name: Run drift monitoring
+        run: python -m src.monitoring.drift_check
+
+      - name: Validate model performance
+        run: python -m src.pipeline.validate_model
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-reports
+          path: reports/

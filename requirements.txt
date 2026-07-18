@@ -16,3 +16,4 @@ azure-search-documents
 openai
 streamlit
 plotly
+evidently
