@@ -13,3 +13,4 @@ scikit-learn
 mlflow
 shap
 azure-search-documents
+openai
