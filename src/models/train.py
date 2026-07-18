@@ -35,10 +35,14 @@ PARAMS = {
 def load_data():
     df = pd.read_parquet(PROCESSED / "features.parquet")
     y = df["TARGET"]
-    drop = ["TARGET", "SK_ID_CURR"]
+
+    # Protected characteristics — excluded per credit policy section 6
+    protected = [c for c in df.columns if c.startswith("CODE_GENDER")]
+
+    drop = ["TARGET", "SK_ID_CURR"] + protected
     X = df.drop(columns=[c for c in drop if c in df.columns])
-    # LightGBM dislikes special characters in column names
     X.columns = [c.replace(" ", "_").replace(":", "_").replace(",", "_") for c in X.columns]
+    print(f"Excluded protected features: {protected}")
     return X, y, df["SK_ID_CURR"]
 
 

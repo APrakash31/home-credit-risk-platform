@@ -19,6 +19,9 @@ def load_application():
     for col in ["DAYS_BIRTH", "DAYS_EMPLOYED", "DAYS_REGISTRATION", "DAYS_ID_PUBLISH"]:
         df[col.replace("DAYS_", "YEARS_")] = -df[col] / 365
 
+    # Drop the raw day columns — the YEARS_ versions carry identical information
+    df = df.drop(columns=["DAYS_BIRTH", "DAYS_EMPLOYED", "DAYS_REGISTRATION", "DAYS_ID_PUBLISH"])
+
     # Domain ratios — these consistently rank among the strongest features
     df["CREDIT_INCOME_RATIO"] = df["AMT_CREDIT"] / df["AMT_INCOME_TOTAL"]
     df["ANNUITY_INCOME_RATIO"] = df["AMT_ANNUITY"] / df["AMT_INCOME_TOTAL"]
