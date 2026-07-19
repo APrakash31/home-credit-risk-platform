@@ -129,6 +129,7 @@ with tab1:
 with tab2:
     df = load_data()
     st.subheader("Individual applicant assessment")
+    st.caption(f"Showing applicants from the loaded dataset ({len(df):,} records).")
 
     ids = df["SK_ID_CURR"].head(200).tolist()
     applicant_id = st.selectbox("Select applicant ID", ids)
@@ -174,10 +175,19 @@ with tab3:
         "queries data, scores applicants, and explains decisions using its tools."
     )
 
+    df_sample = load_data()
+    example_ids = df_sample["SK_ID_CURR"].head(2).tolist()
+
+    st.info(
+        f"This demo runs on a stratified random sample of {len(df_sample):,} applicants "
+        "drawn from the full 307,511-record dataset. The default rate is preserved. "
+        "Applicant IDs below are drawn from this sample."
+    )
+
     examples = [
-        "Assess applicant 100002 and give me a recommendation.",
+        f"Assess applicant {example_ids[0]} and give me a recommendation.",
         "What is the default rate by employment length?",
-        "Applicant 100003 was declined — what reasons should we communicate?",
+        f"Applicant {example_ids[1]} was declined — what reasons should we communicate?",
         "What is our policy on thin-file applicants?",
     ]
     st.markdown("**Try:** " + " · ".join(f"`{e}`" for e in examples))
