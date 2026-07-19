@@ -192,6 +192,14 @@ with tab3:
     ]
     st.markdown("**Try:** " + " · ".join(f"`{e}`" for e in examples))
 
+    AGENT_GIF = ROOT / "docs" / "media" / "agent_in_action.gif"
+    if "agent_available" not in st.session_state:
+        st.session_state.agent_available = True
+
+    if not st.session_state.agent_available and AGENT_GIF.exists():
+        st.markdown("### Recorded demonstration")
+        st.image(str(AGENT_GIF))
+
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
@@ -225,7 +233,21 @@ with tab3:
                         answer = result["answer"]
                         trace = result.get("trace", [])
                     except Exception as e:
-                        answer = f"Error: {e}"
+                        msg = str(e).lower()
+                        if any(k in msg for k in ["401", "403", "authentication", "subscription", "quota", "not found", "connection", "resolve"]):
+                            answer = (
+                                "**The live agent is currently unavailable.**\n\n"
+                                "This feature runs on Azure OpenAI and Azure AI Search, which were "
+                                "provisioned during the Azure free trial period. The reasoning and "
+                                "retrieval services are no longer active.\n\n"
+                                "The recorded demonstration below shows the agent working end to end — "
+                                "planning, calling its tools, and producing a governed recommendation.\n\n"
+                                "The portfolio dashboard and applicant assessment tabs remain fully "
+                                "functional; they run locally on the trained model and require no cloud services."
+                            )
+                            st.session_state.agent_available = False
+                        else:
+                            answer = f"An error occurred: {e}"
                         trace = []
                 st.markdown(answer)
                 if trace:
