@@ -176,12 +176,17 @@ streamlit run app/streamlit_app.py
 ```
 
 ## Repository
-src/ingest/      Kaggle download, Azure Blob upload
-src/features/    Cross-table aggregation and feature engineering
-src/models/      Training with cross-validation and MLflow
-src/explain/     SHAP analysis and reason code mapping
-src/agent/       RAG retrieval, tools, agent loop
-src/monitoring/  PSI drift detection
+
+```text
+src/ingest/      Kaggle download, Azure Blob upload (bronze layer)
+src/features/    Cross-table aggregation and feature engineering (gold layer)
+src/models/      LightGBM training with cross-validation and MLflow tracking
+src/explain/     SHAP analysis and adverse-action reason code mapping
+src/agent/       RAG retrieval, agent tools, agent loop
+src/monitoring/  PSI-based drift detection
 src/pipeline/    Automation support scripts
 knowledge_base/  Data dictionary, credit policy, reason codes
-app/             Streamlit application
+app/             Streamlit application and demo sample
+notebooks/       Exploratory data analysis
+.github/         GitHub Actions pipeline workflow
+```
