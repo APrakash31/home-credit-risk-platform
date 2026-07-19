@@ -26,22 +26,21 @@ system a lending institution could actually operate:
 ---
 
 ## Architecture
-Kaggle (7 tables)
-↓
-Azure Blob Storage — bronze (raw) → gold (features, Parquet)
-↓
-Feature engineering — cross-table aggregation, domain ratios
-↓
-LightGBM + MLflow → SHAP explainability → reason codes
-↓
-AI Agent (Azure OpenAI gpt-5-mini)
-├── RAG          → Azure AI Search (policy, data dictionary, reason codes)
-├── Text-to-SQL  → DuckDB over the feature table
-├── Scoring      → trained model
-└── SHAP         → per-applicant decision drivers
-↓
-Streamlit app  ·  GitHub Actions (weekly pipeline + drift + validation gate)
----
+
+```mermaid
+flowchart TD
+    A[Kaggle · 7 relational tables] --> B[Azure Blob Storage<br/>bronze → gold]
+    B --> C[Feature engineering<br/>cross-table aggregation]
+    C --> D[LightGBM + MLflow]
+    D --> E[SHAP → reason codes]
+    E --> F[AI Agent · Azure OpenAI]
+    F --> G[RAG · Azure AI Search]
+    F --> H[Text-to-SQL · DuckDB]
+    F --> I[Model scoring]
+    F --> J[SHAP explanations]
+    F --> K[Streamlit app]
+    K --> L[GitHub Actions<br/>pipeline · drift · validation gate]
+```
 
 ## The agent
 
