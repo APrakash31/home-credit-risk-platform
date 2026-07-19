@@ -8,6 +8,41 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
+from datetime import date
+
+MAX_MESSAGES_PER_SESSION = 8
+MAX_MESSAGES_PER_DAY = 200
+
+
+@st.cache_resource
+def _global_counter():
+    return {"date": date.today(), "count": 0}
+
+
+def check_rate_limit():
+    """Returns (allowed, message)."""
+    counter = _global_counter()
+    if counter["date"] != date.today():
+        counter["date"] = date.today()
+        counter["count"] = 0
+
+    if counter["count"] >= MAX_MESSAGES_PER_DAY:
+        return False, "Daily demo limit reached. Please try again tomorrow."
+
+    used = st.session_state.get("agent_calls", 0)
+    if used >= MAX_MESSAGES_PER_SESSION:
+        return False, (
+            f"Session limit of {MAX_MESSAGES_PER_SESSION} questions reached. "
+            "Refresh the page to start a new session."
+        )
+
+    return True, ""
+
+
+def record_call():
+    st.session_state["agent_calls"] = st.session_state.get("agent_calls", 0) + 1
+    _global_counter()["count"] += 1
+
 st.set_page_config(page_title="Credit Risk Platform", page_icon="●", layout="wide")
 
 FEATURES = ROOT / "data" / "processed" / "features.parquet"
@@ -158,24 +193,34 @@ with tab3:
                     for t in m["trace"]:
                         st.markdown(f"**{t['tool']}** — `{t['arguments']}`")
 
+    used = st.session_state.get("agent_calls", 0)
+    st.caption(f"Demo usage: {used}/{MAX_MESSAGES_PER_SESSION} questions this session")
+
     if prompt := st.chat_input("Ask the credit analyst..."):
+        allowed, limit_msg = check_rate_limit()
+
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
-            with st.spinner("Analysing..."):
-                try:
-                    result = get_agent().run(prompt, verbose=False)
-                    answer = result["answer"]
-                    trace = result.get("trace", [])
-                except Exception as e:
-                    answer = f"Error: {e}"
-                    trace = []
-            st.markdown(answer)
-            if trace:
-                with st.expander("Tools used"):
-                    for t in trace:
-                        st.markdown(f"**{t['tool']}** — `{t['arguments']}`")
+            if not allowed:
+                st.warning(limit_msg)
+                answer, trace = limit_msg, []
+            else:
+                with st.spinner("Analysing..."):
+                    try:
+                        record_call()
+                        result = get_agent().run(prompt, verbose=False)
+                        answer = result["answer"]
+                        trace = result.get("trace", [])
+                    except Exception as e:
+                        answer = f"Error: {e}"
+                        trace = []
+                st.markdown(answer)
+                if trace:
+                    with st.expander("Tools used"):
+                        for t in trace:
+                            st.markdown(f"**{t['tool']}** — `{t['arguments']}`")
 
         st.session_state.messages.append({"role": "assistant", "content": answer, "trace": trace})
