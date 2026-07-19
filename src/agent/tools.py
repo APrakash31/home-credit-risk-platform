@@ -7,7 +7,9 @@ from src.explain.reason_codes import ApplicantExplainer
 from src.agent.retrieval import search_knowledge_base
 
 ROOT = Path(__file__).resolve().parents[2]
-FEATURES = ROOT / "data" / "processed" / "features.parquet"
+_full = ROOT / "data" / "processed" / "features.parquet"
+_demo = ROOT / "app" / "demo_data" / "features_sample.parquet"
+FEATURES = _full if _full.exists() else _demo
 
 _explainer = None
 _df = None
